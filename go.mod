@@ -1,4 +1,4 @@
-module github.com/j4mbob/dhcp
+module github.com/insomniacslk/dhcp
 
 go 1.20
 
