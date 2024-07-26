@@ -2,17 +2,17 @@
 //
 // Example Usage:
 //
-//   p, err := dhcpv4.New(
-//     dhcpv4.WithClientIP(net.IP{192, 168, 0, 1}),
-//     dhcpv4.WithMessageType(dhcpv4.MessageTypeInform),
-//   )
-//   p.UpdateOption(dhcpv4.OptServerIdentifier(net.IP{192, 110, 110, 110}))
+//	p, err := dhcpv4.New(
+//	  dhcpv4.WithClientIP(net.IP{192, 168, 0, 1}),
+//	  dhcpv4.WithMessageType(dhcpv4.MessageTypeInform),
+//	)
+//	p.UpdateOption(dhcpv4.OptServerIdentifier(net.IP{192, 110, 110, 110}))
 //
-//   // Retrieve the DHCP Message Type option.
-//   m := p.MessageType()
+//	// Retrieve the DHCP Message Type option.
+//	m := p.MessageType()
 //
-//   bytesOnTheWire := p.ToBytes()
-//   longSummary := p.Summary()
+//	bytesOnTheWire := p.ToBytes()
+//	longSummary := p.Summary()
 package dhcpv4
 
 import (
@@ -71,6 +71,7 @@ type DHCPv4 struct {
 	ServerHostName string
 	BootFileName   string
 	Options        Options
+	Timestamp      time.Time
 }
 
 // Modifier defines the signature for functions that can modify DHCPv4
@@ -152,6 +153,7 @@ func New(modifiers ...Modifier) (*DHCPv4, error) {
 		YourIPAddr:    net.IPv4zero,
 		ServerIPAddr:  net.IPv4zero,
 		GatewayIPAddr: net.IPv4zero,
+		Timestamp:     time.Now(),
 		Options:       make(Options),
 	}
 	for _, mod := range modifiers {
@@ -282,11 +284,11 @@ func NewReplyFromRequest(request *DHCPv4, modifiers ...Modifier) (*DHCPv4, error
 
 // NewReleaseFromACK creates a DHCPv4 Release message from ACK.
 // default Release message without any Modifer is created as following:
-//  - option Message Type is Release
-//  - ClientIP is set to ack.YourIPAddr
-//  - ClientHWAddr is set to ack.ClientHWAddr
-//  - Unicast
-//  - option Server Identifier is set to ack's ServerIdentifier
+//   - option Message Type is Release
+//   - ClientIP is set to ack.YourIPAddr
+//   - ClientHWAddr is set to ack.ClientHWAddr
+//   - Unicast
+//   - option Server Identifier is set to ack's ServerIdentifier
 func NewReleaseFromACK(ack *DHCPv4, modifiers ...Modifier) (*DHCPv4, error) {
 	return New(PrependModifiers(modifiers,
 		WithMessageType(MessageTypeRelease),
@@ -854,3 +856,4 @@ func (d *DHCPv4) VIVC() VIVCIdentifiers {
 	}
 	return ids
 }
+
